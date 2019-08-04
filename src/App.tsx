@@ -4,14 +4,17 @@ import Theme from './components/Theme'
 import Header from './components/Header'
 import Content from './components/Content'
 import BottomBar from './components/BottomBar'
+import { PlaylistProvider } from './state/playlist'
 
 const App: React.FC = () => {
   return (
     <Theme>
       <CssBaseline />
-      <Header />
-      <Content />
-      <BottomBar />
+      <PlaylistProvider>
+        <Header />
+        <Content />
+        <BottomBar />
+      </PlaylistProvider>
     </Theme>
   )
 }
