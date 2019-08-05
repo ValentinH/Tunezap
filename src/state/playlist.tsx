@@ -1,8 +1,10 @@
 import React from 'react'
 
-export type Song = { id: string; title: string; artist: string }
+export type Song = { id: number; title: string }
 type State = { songs: Song[] }
-type Action = { type: 'increment' } | { type: 'decrement' }
+type Action =
+  | { type: 'addSong'; value: string }
+  | { type: 'removeSong'; id: number }
 type Dispatch = (action: Action) => void
 type PlaylistProviderProps = { children: React.ReactNode }
 
@@ -11,10 +13,27 @@ const PlaylistDispatchContext = React.createContext<Dispatch | undefined>(
   undefined
 )
 
+let playlistId = 0
+
 function playlistReducer(state: State, action: Action) {
   switch (action.type) {
-    case 'increment': {
-      return { ...state }
+    case 'addSong': {
+      return {
+        ...state,
+        songs: [
+          ...state.songs,
+          {
+            title: action.value,
+            id: playlistId++,
+          },
+        ],
+      }
+    }
+    case 'removeSong': {
+      return {
+        ...state,
+        songs: state.songs.filter(song => song.id !== action.id),
+      }
     }
     default: {
       throw new Error(`Unhandled action: ${action}`)
@@ -33,7 +52,7 @@ function PlaylistProvider({ children }: PlaylistProviderProps) {
   )
 }
 
-function usePlaylistState() {
+export function usePlaylistState() {
   const context = React.useContext(PlaylistStateContext)
   if (context === undefined) {
     throw new Error('usePlaylistState must be used within a PlaylistProvider')
@@ -41,7 +60,7 @@ function usePlaylistState() {
   return context
 }
 
-function usePlaylistDispatch() {
+export function usePlaylistDispatch() {
   const context = React.useContext(PlaylistDispatchContext)
   if (context === undefined) {
     throw new Error(
@@ -51,7 +70,7 @@ function usePlaylistDispatch() {
   return context
 }
 
-function usePlaylist() {
+function usePlaylist(): [State, Dispatch] {
   return [usePlaylistState(), usePlaylistDispatch()]
 }
 

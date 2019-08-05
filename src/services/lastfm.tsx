@@ -1,7 +1,6 @@
 import ky from 'ky'
 
 export type Suggestion = {
-  id: string
   title?: string
   artist: string
   isSong: boolean
@@ -68,7 +67,6 @@ const getSongsSuggestions = async (
 
   return response.results
     ? response.results.trackmatches.track.map(track => ({
-        id: track.mbid,
         title: track.name,
         artist: track.artist,
         isSong: true,
@@ -94,7 +92,6 @@ const getArtistsSuggestions = async (
 
   return response.results
     ? response.results.artistmatches.artist.map(artist => ({
-        id: artist.mbid,
         artist: artist.name,
         isSong: false,
       }))

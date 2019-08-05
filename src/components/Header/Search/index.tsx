@@ -5,7 +5,10 @@ import { fade, makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import { InputBase, MenuItem, CircularProgress, Paper } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import { getSuggestions, Suggestion } from 'services/lastfm'
-import classes from '*.module.sass'
+
+type Props = {
+  onSelect: (value: string) => void
+}
 
 type SuggestionsSection = { title: string; suggestions: Suggestion[] }
 type Suggestions = SuggestionsSection[]
@@ -75,9 +78,9 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 const renderInputComponent = (inputProps: any) => {
-  const { classes, ref, isSearching, ...other } = inputProps
+  const { classes, ref, isSearching, onSubmit, ...other } = inputProps
   return (
-    <div className={classes.search}>
+    <form className={classes.search} onSubmit={onSubmit}>
       <div className={classes.searchIcon}>
         <SearchIcon />
       </div>
@@ -99,7 +102,7 @@ const renderInputComponent = (inputProps: any) => {
           className={classes.spinner}
         />
       )}
-    </div>
+    </form>
   )
 }
 
@@ -137,12 +140,25 @@ const getSuggestionValue = (suggestion: Suggestion) => {
     : suggestion.artist
 }
 
-export default function Search() {
+export default function Search({ onSelect }: Props) {
   const classes = useStyles()
   const [input, setInput] = React.useState('')
   const [suggestions, setSuggestions] = React.useState<Suggestions>([])
   const [isSearching, setIsSearching] = React.useState(false)
   const [lastSearch, setLastSearch] = React.useState(null)
+
+  const onSuggestionSelected = (
+    _event: React.SyntheticEvent<{}>,
+    { suggestionValue }: Autosuggest.SuggestionSelectedEventData<Suggestion>
+  ) => {
+    _event.preventDefault()
+    onSelect(suggestionValue)
+  }
+
+  const onSubmit = (e: React.SyntheticEvent<{}>) => {
+    e.preventDefault()
+    onSelect(input)
+  }
 
   const [fetchSuggestions] = useDebouncedCallback(async (value: any) => {
     setIsSearching(true)
@@ -183,6 +199,7 @@ export default function Search() {
       renderSectionTitle({ section, classes }),
     renderSectionContainer,
     getSectionSuggestions: (section: SuggestionsSection) => section.suggestions,
+    onSuggestionSelected,
   }
 
   return (
@@ -197,6 +214,7 @@ export default function Search() {
         value: input,
         onChange: handleChange,
         isSearching,
+        onSubmit,
       }}
       theme={{
         container: classes.container,
