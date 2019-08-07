@@ -5,7 +5,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton'
 import Typography from '@material-ui/core/Typography'
 import ShareIcon from '@material-ui/icons/Share'
-import { usePlaylistDispatch } from 'state/playlist'
+import { usePlaylistDispatch, usePlaylistActions } from 'state/playlist'
 import Search from './Search'
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -31,10 +31,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Header() {
   const classes = useStyles()
-  const playlistDispatch = usePlaylistDispatch()
+  const { addSong } = usePlaylistActions()
 
   const onSelect = (value: string) => {
-    playlistDispatch({ type: 'addSong', value })
+    addSong(value)
   }
 
   return (

@@ -1,9 +1,15 @@
 import React from 'react'
+import * as youtube from 'services/youtube'
 
-export type Song = { id: number; title: string }
+export type Song = {
+  id: number
+  title: string
+  videoId: Maybe<string>
+}
+
 type State = { songs: Song[] }
 type Action =
-  | { type: 'addSong'; value: string }
+  | { type: 'addSong'; value: string; videoId: Maybe<string> }
   | { type: 'removeSong'; id: number }
 type Dispatch = (action: Action) => void
 type PlaylistProviderProps = { children: React.ReactNode }
@@ -24,6 +30,7 @@ function playlistReducer(state: State, action: Action) {
           ...state.songs,
           {
             title: action.value,
+            videoId: action.videoId,
             id: playlistId++,
           },
         ],
@@ -41,7 +48,7 @@ function playlistReducer(state: State, action: Action) {
   }
 }
 
-function PlaylistProvider({ children }: PlaylistProviderProps) {
+export function PlaylistProvider({ children }: PlaylistProviderProps) {
   const [state, dispatch] = React.useReducer(playlistReducer, { songs: [] })
   return (
     <PlaylistStateContext.Provider value={state}>
@@ -70,8 +77,18 @@ export function usePlaylistDispatch() {
   return context
 }
 
-function usePlaylist(): [State, Dispatch] {
+export function usePlaylistActions() {
+  const dispatch = usePlaylistDispatch()
+  return {
+    addSong: addSong(dispatch),
+  }
+}
+
+export function usePlaylist(): [State, Dispatch] {
   return [usePlaylistState(), usePlaylistDispatch()]
 }
 
-export { PlaylistProvider, usePlaylist }
+const addSong = (dispatch: Dispatch) => async (value: string) => {
+  const videoId = await youtube.getVideo(value)
+  dispatch({ type: 'addSong', value, videoId })
+}
