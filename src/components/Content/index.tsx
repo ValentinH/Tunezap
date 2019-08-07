@@ -1,6 +1,7 @@
 import React from 'react'
 import { fade, makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import Playlist from './Playlist'
+import Player from './Player'
 import CurrentSong from './CurrentSong'
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -30,6 +31,7 @@ const Content: React.FC = () => {
     <div className={classes.root}>
       <div className={classes.side}>
         <Playlist />
+        <Player />
       </div>
       <div className={classes.divider} />
       <div className={classes.side}>
